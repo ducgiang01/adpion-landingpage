@@ -44,36 +44,59 @@ git clone https://github.com/ducgiang01/adpion-dashboard.git
 cd adpion-dashboard
 ```
 
-### 2. Install frontend dependencies
+### 2. Quick Setup (Recommended)
 
+Use our automated setup script:
+
+```bash
+# macOS/Linux
+./scripts/setup-database.sh
+
+# Windows
+scripts\setup-database.bat
+```
+
+This script will:
+- Check MongoDB installation
+- Start MongoDB if needed
+- Install backend dependencies
+- Seed the database with sample data
+
+### 3. Manual Setup
+
+If you prefer manual setup:
+
+#### Install frontend dependencies
 ```bash
 npm install
 ```
 
-### 3. Install backend dependencies
-
+#### Install backend dependencies
 ```bash
 cd backend
 npm install
 cd ..
 ```
 
-### 4. Setup MongoDB
+#### Setup MongoDB
 
 Make sure MongoDB is running on your system:
 
 ```bash
 # On macOS with Homebrew
+brew install mongodb-community
 brew services start mongodb-community
 
 # On Ubuntu/Debian
+sudo apt install mongodb
 sudo systemctl start mongod
 
 # On Windows
+# Download from: https://www.mongodb.com/try/download/community
 net start MongoDB
 ```
 
-### 5. Configure environment variables
+#### Configure environment variables
 
 Create a `.env` file in the `backend` directory:
 
@@ -97,9 +120,36 @@ JWT_EXPIRES_IN=7d
 FRONTEND_URL=http://localhost:5173
 ```
 
+#### Seed the database
+```bash
+cd backend
+npm run seed
+cd ..
+```
+
 ## Running the Application
 
-### 1. Start the backend server
+### Quick Start (Recommended)
+
+Use our development starter script to run both servers:
+
+```bash
+# macOS/Linux
+./scripts/start-dev.sh
+
+# Windows
+scripts\start-dev.bat
+```
+
+This will start:
+- Backend server on `http://localhost:3001`
+- Frontend server on `http://localhost:5173`
+
+### Manual Start
+
+If you prefer to start servers manually:
+
+#### 1. Start the backend server
 
 ```bash
 cd backend
@@ -108,22 +158,37 @@ npm run dev
 
 The backend server will start on `http://localhost:3001`
 
-### 2. Seed the database (optional)
-
-In a new terminal, run the seed script to populate the database with sample data:
-
-```bash
-cd backend
-npm run seed
-```
-
-### 3. Start the frontend development server
+#### 2. Start the frontend development server
 
 ```bash
 npm run dev
 ```
 
 The frontend will start on `http://localhost:5173`
+
+## Using MongoDB Compass
+
+MongoDB Compass provides a graphical interface to manage your database:
+
+### 1. Install MongoDB Compass
+- Download from: https://www.mongodb.com/try/download/compass
+- Or use Homebrew: `brew install --cask mongodb-compass`
+
+### 2. Connect to Database
+- Connection String: `mongodb://localhost:27017`
+- Select database: `adpion-dashboard`
+
+### 3. Explore Collections
+- **accounts**: Facebook account information
+- **activities**: Activity history and logs
+
+### 4. Features
+- Browse and edit documents
+- Run queries and aggregations
+- Monitor performance
+- Manage indexes
+
+For detailed MongoDB Compass guide, see: [MONGODB_COMPASS_GUIDE.md](./MONGODB_COMPASS_GUIDE.md)
 
 ## API Endpoints
 
