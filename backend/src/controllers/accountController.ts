@@ -4,7 +4,7 @@ import Activity from '../models/Activity';
 
 export const getAllAccounts = async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 10, status, search } = req.query;
+    const { page = 1, limit = 10, status, search, accountId, balanceRange } = req.query;
     
     const query: any = {};
     
@@ -17,6 +17,25 @@ export const getAllAccounts = async (req: Request, res: Response) => {
         { accountName: { $regex: search, $options: 'i' } },
         { accountId: { $regex: search, $options: 'i' } }
       ];
+    }
+    
+    if (accountId) {
+      query.accountId = { $regex: accountId, $options: 'i' };
+    }
+    
+    // Handle balance range filter
+    if (balanceRange && balanceRange !== 'all') {
+      switch (balanceRange) {
+        case '0-100':
+          query.balance = { $gte: 0, $lte: 100 };
+          break;
+        case '100-500':
+          query.balance = { $gt: 100, $lte: 500 };
+          break;
+        case '500+':
+          query.balance = { $gt: 500 };
+          break;
+      }
     }
     
     const accounts = await Account.find(query)

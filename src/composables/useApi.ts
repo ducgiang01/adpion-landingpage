@@ -109,11 +109,13 @@ export function useAccountApi() {
     limit?: number
     status?: string
     search?: string
+    accountId?: string
+    balanceRange?: string
   }) => {
     const searchParams = new URLSearchParams()
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
+        if (value !== undefined && value !== '') {
           searchParams.append(key, String(value))
         }
       })

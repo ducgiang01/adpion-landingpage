@@ -19,12 +19,6 @@ const seedData = async () => {
     // Seed accounts
     const accounts = [
       {
-        accountId: '800624365979550',
-        accountName: 'SHOTOTA HOMEO',
-        status: 'active',
-        balance: 182.58
-      },
-      {
         accountId: '1157513326484527',
         accountName: 'achievecollect.shop',
         status: 'active',
@@ -43,6 +37,12 @@ const seedData = async () => {
         balance: 12.60
       },
       {
+        accountId: '800624365979550',
+        accountName: 'SHOTOTA HOMEO',
+        status: 'active',
+        balance: 182.58
+      },
+      {
         accountId: '123456789012345',
         accountName: 'Test Account 1',
         status: 'active',
@@ -53,6 +53,30 @@ const seedData = async () => {
         accountName: 'Test Account 2',
         status: 'blocked',
         balance: 0.00
+      },
+      {
+        accountId: '1549312319781595',
+        accountName: 'tagor.xyz',
+        status: 'active',
+        balance: 44.48
+      },
+      {
+        accountId: '555666777888999',
+        accountName: 'Adpion01',
+        status: 'active',
+        balance: 5.47
+      },
+      {
+        accountId: '111222333444555',
+        accountName: 'adscitybd.com',
+        status: 'active',
+        balance: 0.01
+      },
+      {
+        accountId: '999888777666555',
+        accountName: 'Cholo Speed UK',
+        status: 'active',
+        balance: 0.01
       }
     ];
     
