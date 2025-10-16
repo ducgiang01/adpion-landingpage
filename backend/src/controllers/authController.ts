@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import Wallet from '../models/Wallet';
+
+const jwt = require('jsonwebtoken');
 
 interface AuthRequest extends Request {
   userId?: string;
@@ -35,7 +36,7 @@ export const register = async (req: Request, res: Response) => {
 
     // Create wallet for user
     const wallet = new Wallet({
-      userId: user._id.toString(),
+      userId: (user as any)._id.toString(),
       balance: 0,
       currency: 'USD'
     });
@@ -45,12 +46,12 @@ export const register = async (req: Request, res: Response) => {
     // Generate JWT token
     const token = jwt.sign(
       { 
-        userId: user._id.toString(), 
+        userId: (user as any)._id.toString(), 
         username: user.username, 
         email: user.email 
       },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      (process.env.JWT_SECRET || 'your-secret-key') as string,
+      { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as string }
     );
 
     res.status(201).json({
@@ -96,12 +97,12 @@ export const login = async (req: Request, res: Response) => {
     // Generate JWT token
     const token = jwt.sign(
       { 
-        userId: user._id.toString(), 
+        userId: (user as any)._id.toString(), 
         username: user.username, 
         email: user.email 
       },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      (process.env.JWT_SECRET || 'your-secret-key') as string,
+      { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as string }
     );
 
     res.json({

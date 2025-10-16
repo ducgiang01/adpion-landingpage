@@ -50,6 +50,7 @@ UserSchema.pre('save', async function(next) {
     this.password = await bcrypt.hash(this.password as string, salt);
     next();
   } catch (error) {
+    console.error('Password hashing error:', error);
     next(error as Error);
   }
 });

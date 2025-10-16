@@ -49,6 +49,26 @@ const clearAuth = () => {
 
 export function useAuth() {
   const { post, loading, error } = useApi()
+  
+  // Helper function to make API calls
+  const apiCall = async (endpoint: string, data: any) => {
+    const token = localStorage.getItem('auth_token')
+    
+    const response = await fetch(`http://localhost:3001/api${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      },
+      body: JSON.stringify(data)
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    return response.json()
+  }
 
   // Computed properties
   const user = computed(() => authState.value.user)
@@ -59,7 +79,7 @@ export function useAuth() {
   // Login function
   const login = async (email: string, password: string) => {
     try {
-      const response = await post('/auth/login', { email, password }) as {
+      const response = await apiCall('/auth/login', { email, password }) as {
         user: User
         token: string
       }
@@ -82,7 +102,7 @@ export function useAuth() {
   // Register function
   const register = async (username: string, email: string, password: string) => {
     try {
-      const response = await post('/auth/register', { username, email, password }) as {
+      const response = await apiCall('/auth/register', { username, email, password }) as {
         user: User
         token: string
       }
@@ -110,10 +130,24 @@ export function useAuth() {
   // Get user profile
   const getProfile = async () => {
     try {
-      const response = await post('/auth/profile', {}) as { user: User }
-      authState.value.user = response.user
-      localStorage.setItem('auth_user', JSON.stringify(response.user))
-      return { success: true, data: response }
+      const token = localStorage.getItem('auth_token')
+      
+      const response = await fetch('http://localhost:3001/api/auth/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        }
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json() as { user: User }
+      authState.value.user = data.user
+      localStorage.setItem('auth_user', JSON.stringify(data.user))
+      return { success: true, data }
     } catch (err) {
       console.error('Get profile error:', err)
       // If token is invalid, clear auth

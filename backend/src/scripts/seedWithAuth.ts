@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
 import connectDB from '../config/database';
 import User from '../models/User';
 import Account from '../models/Account';
@@ -22,24 +23,28 @@ const seedWithAuth = async () => {
     
     console.log('🗑️  Cleared existing data');
     
-    // Create test users
+    // Create test users with hashed passwords
+    const salt = await bcrypt.genSalt(10);
+    const hashedAdminPassword = await bcrypt.hash('admin123', salt);
+    const hashedUserPassword = await bcrypt.hash('user123', salt);
+    
     const users = [
       {
         username: 'admin',
         email: 'admin@adpion.com',
-        password: 'admin123',
+        password: hashedAdminPassword,
         role: 'admin'
       },
       {
         username: 'user1',
         email: 'user1@adpion.com',
-        password: 'user123',
+        password: hashedUserPassword,
         role: 'user'
       },
       {
         username: 'user2',
         email: 'user2@adpion.com',
-        password: 'user123',
+        password: hashedUserPassword,
         role: 'user'
       }
     ];
