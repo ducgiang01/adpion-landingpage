@@ -1,0 +1,471 @@
+{
+    "name": "AI Creative Checker for TikTok Ads - Ecomdy",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "check-creative",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "webhook-trigger",
+            "name": "Webhook Trigger - Receive Creative",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ],
+            "webhookId": "ecomdy-creative-checker"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "creative_id",
+                            "name": "creative_id",
+                            "value": "={{ $json.body.creative_id }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "creative_type",
+                            "name": "creative_type",
+                            "value": "={{ $json.body.creative_type }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "caption",
+                            "name": "caption",
+                            "value": "={{ $json.body.caption }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "cta_text",
+                            "name": "cta_text",
+                            "value": "={{ $json.body.cta_text }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "image_url",
+                            "name": "image_url",
+                            "value": "={{ $json.body.image_url }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "video_url",
+                            "name": "video_url",
+                            "value": "={{ $json.body.video_url }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "target_market",
+                            "name": "target_market",
+                            "value": "={{ $json.body.target_market }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "product_category",
+                            "name": "product_category",
+                            "value": "={{ $json.body.product_category }}",
+                            "type": "string"
+                        }
+                    ]
+                }
+            },
+            "id": "extract-data",
+            "name": "Extract Input Data",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3,
+            "position": [
+                450,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "model": "gpt-4o",
+                "options": {
+                    "temperature": 0.3,
+                    "maxTokens": 2000
+                },
+                "messages": {
+                    "values": [
+                        {
+                            "content": "=Bạn là chuyên gia kiểm tra creative quảng cáo TikTok. Nhiệm vụ của bạn là phân tích văn bản quảng cáo và phát hiện các vi phạm chính sách TikTok.\n\n**CHÍNH SÁCH TIKTOK CẦN KIỂM TRA:**\n\n1. **Từ ngữ cấm và nhạy cảm:**\n- Từ ngữ y tế: \"chữa khỏi hoàn toàn\", \"điều trị tức thì\", \"kỳ diệu\", \"thần kỳ\"\n- Từ ngữ tài chính: \"đảm bảo lợi nhuận\", \"không rủi ro\", \"làm giàu nhanh\"\n- Từ ngữ quá khích: \"tốt nhất thế giới\", \"số 1 duy nhất\", \"chắc chắn 100%\"\n- Clickbait: \"bạn sẽ không tin\", \"cú lừa\", \"hack này\"\n\n2. **Tuyên bố sai sự thật:**\n- Before/After không có chứng cứ\n- Hiệu quả không thể chứng minh\n- So sánh không công bằng với đối thủ\n\n3. **Nội dung nhạy cảm:**\n- Liên quan đến chính trị, tôn giáo\n- Phân biệt đối xử\n- Nội dung tình dục, bạo lực\n\n4. **Vi phạm bản quyền:**\n- Sử dụng tên thương hiệu không được phép\n- Nhắc đến \"TikTok trending\" không có quyền\n- Tên người nổi tiếng\n\n**DỮ LIỆU CẦN PHÂN TÍCH:**\nCaption: {{ $json.caption }}\nCTA Text: {{ $json.cta_text }}\nThị trường: {{ $json.target_market }}\nDanh mục sản phẩm: {{ $json.product_category }}\n\n**YÊU CẦU OUTPUT (JSON):**\n{\n  \"text_analysis\": {\n    \"violations_found\": boolean,\n    \"issues\": [\n      {\n        \"type\": \"banned_word\" | \"misleading_claim\" | \"copyright\" | \"inappropriate\",\n        \"severity\": \"high\" | \"medium\" | \"low\",\n        \"detected_text\": \"text vi phạm\",\n        \"reason\": \"Lý do cụ thể\",\n        \"suggestion\": \"Gợi ý sửa\"\n      }\n    ],\n    \"risk_score_text\": 0-100,\n    \"compliant_status\": \"approved\" | \"rejected\" | \"review_needed\"\n  }\n}\n\nChỉ trả về JSON, không giải thích thêm."
+                        }
+                    ]
+                }
+            },
+            "id": "analyze-text",
+            "name": "AI Analyze Text - OpenAI",
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1,
+            "position": [
+                650,
+                200
+            ],
+            "credentials": {
+                "openAiApi": {
+                    "id": "your-openai-credential",
+                    "name": "OpenAI account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "string": [
+                        {
+                            "value1": "={{ $json.creative_type }}",
+                            "operation": "equals",
+                            "value2": "image"
+                        }
+                    ]
+                }
+            },
+            "id": "check-media-type",
+            "name": "Check Media Type",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                650,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "model": "gpt-4o",
+                "options": {
+                    "temperature": 0.3,
+                    "maxTokens": 2000
+                },
+                "messages": {
+                    "values": [
+                        {
+                            "content": "=Bạn là chuyên gia phân tích hình ảnh quảng cáo TikTok. Phân tích hình ảnh và phát hiện vi phạm.\n\n**KIỂM TRA HÌNH ẢNH:**\n\n1. **Text overlay quá nhiều (>20% diện tích)**\n2. **Logo giả mạo hoặc không được phép**\n3. **Hình ảnh cơ thể nhạy cảm:**\n   - Cơ thể phơi bày quá mức\n   - Before/After không có disclaimer\n   - Focus vào vùng cơ thể nhạy cảm\n4. **Sản phẩm hạn chế:**\n   - Thuốc, viên uống không rõ nguồn gốc\n   - Tiền, thẻ ngân hàng\n   - Vũ khí, dao kéo\n   - Thuốc lá, rượu (nếu không tuân thủ quy định)\n5. **Chất lượng kém:**\n   - Mờ, pixelated\n   - Chói lóa, nhấp nháy\n\n**DỮ LIỆU:**\nImage URL: {{ $json.image_url }}\nProduct Category: {{ $json.product_category }}\n\n**OUTPUT (JSON):**\n{\n  \"visual_analysis\": {\n    \"violations_found\": boolean,\n    \"issues\": [\n      {\n        \"type\": \"excessive_text\" | \"fake_logo\" | \"body_image\" | \"restricted_product\" | \"low_quality\",\n        \"severity\": \"high\" | \"medium\" | \"low\",\n        \"location\": \"vị trí trong ảnh\",\n        \"reason\": \"Lý do\",\n        \"suggestion\": \"Gợi ý sửa\"\n      }\n    ],\n    \"text_coverage_percentage\": 0-100,\n    \"risk_score_visual\": 0-100,\n    \"compliant_status\": \"approved\" | \"rejected\" | \"review_needed\"\n  }\n}\n\nChỉ trả về JSON."
+                        }
+                    ],
+                    "imageUrls": "={{ $json.image_url }}"
+                }
+            },
+            "id": "analyze-image",
+            "name": "AI Analyze Image - OpenAI Vision",
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1,
+            "position": [
+                850,
+                300
+            ],
+            "credentials": {
+                "openAiApi": {
+                    "id": "your-openai-credential",
+                    "name": "OpenAI account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "model": "gpt-4o",
+                "options": {
+                    "temperature": 0.3,
+                    "maxTokens": 2000
+                },
+                "messages": {
+                    "values": [
+                        {
+                            "content": "=Bạn là chuyên gia phân tích video quảng cáo TikTok. Phân tích video và phát hiện vi phạm.\n\n**KIỂM TRA VIDEO:**\n\n1. **Nhạc nền:**\n   - Nhạc bản quyền chưa được cấp phép\n   - Nhạc có nội dung không phù hợp\n2. **Nội dung misleading:**\n   - Hiệu ứng giả mạo kết quả\n   - Jump scare, nội dung gây sốc\n   - Mô phỏng UI TikTok giả\n3. **Nội dung nhạy cảm:**\n   - Hình ảnh bạo lực, máu me\n   - Nội dung người lớn\n   - Hút thuốc, uống rượu không disclaimer\n4. **Chất lượng:**\n   - Rung lắc quá nhiều\n   - Chuyển cảnh quá nhanh (gây khó chịu)\n   - Âm thanh méo, không đồng bộ\n5. **Thời lượng không phù hợp**\n\n**DỮ LIỆU:**\nVideo URL: {{ $json.video_url }}\nProduct Category: {{ $json.product_category }}\n\n**OUTPUT (JSON):**\n{\n  \"video_analysis\": {\n    \"violations_found\": boolean,\n    \"issues\": [\n      {\n        \"type\": \"copyright_music\" | \"misleading_content\" | \"sensitive_content\" | \"low_quality\",\n        \"severity\": \"high\" | \"medium\" | \"low\",\n        \"timestamp\": \"thời điểm trong video\",\n        \"reason\": \"Lý do\",\n        \"suggestion\": \"Gợi ý sửa\"\n      }\n    ],\n    \"risk_score_video\": 0-100,\n    \"compliant_status\": \"approved\" | \"rejected\" | \"review_needed\"\n  }\n}\n\nChỉ trả về JSON."
+                        }
+                    ]
+                }
+            },
+            "id": "analyze-video",
+            "name": "AI Analyze Video - OpenAI",
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1,
+            "position": [
+                850,
+                500
+            ],
+            "credentials": {
+                "openAiApi": {
+                    "id": "your-openai-credential",
+                    "name": "OpenAI account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const textAnalysis = $('AI Analyze Text - OpenAI').first().json;\nconst mediaType = $('Extract Input Data').first().json.creative_type;\n\nlet visualAnalysis = {};\nlet finalRiskScore = 0;\nlet allIssues = [];\nlet finalStatus = 'approved';\n\n// Parse text analysis\nconst textResult = JSON.parse(textAnalysis.output || '{}');\nconst textScore = textResult.text_analysis?.risk_score_text || 0;\nconst textIssues = textResult.text_analysis?.issues || [];\n\n// Add text issues\nallIssues = [...textIssues];\n\n// Handle image analysis\nif (mediaType === 'image') {\n  const imageAnalysis = $('AI Analyze Image - OpenAI Vision').first().json;\n  const imageResult = JSON.parse(imageAnalysis.output || '{}');\n  const imageScore = imageResult.visual_analysis?.risk_score_visual || 0;\n  const imageIssues = imageResult.visual_analysis?.issues || [];\n  \n  allIssues = [...allIssues, ...imageIssues];\n  finalRiskScore = Math.max(textScore, imageScore);\n  visualAnalysis = imageResult.visual_analysis;\n}\n\n// Handle video analysis\nif (mediaType === 'video') {\n  const videoAnalysis = $('AI Analyze Video - OpenAI').first().json;\n  const videoResult = JSON.parse(videoAnalysis.output || '{}');\n  const videoScore = videoResult.video_analysis?.risk_score_video || 0;\n  const videoIssues = videoResult.video_analysis?.issues || [];\n  \n  allIssues = [...allIssues, ...videoIssues];\n  finalRiskScore = Math.max(textScore, videoScore);\n  visualAnalysis = videoResult.video_analysis;\n}\n\n// Determine final status\nconst highSeverityCount = allIssues.filter(i => i.severity === 'high').length;\nconst mediumSeverityCount = allIssues.filter(i => i.severity === 'medium').length;\n\nif (finalRiskScore >= 70 || highSeverityCount >= 2) {\n  finalStatus = 'rejected';\n} else if (finalRiskScore >= 40 || highSeverityCount >= 1 || mediumSeverityCount >= 3) {\n  finalStatus = 'review_needed';\n} else {\n  finalStatus = 'approved';\n}\n\n// Build final result\nconst result = {\n  creative_id: $('Extract Input Data').first().json.creative_id,\n  creative_type: mediaType,\n  ad_risk_score: finalRiskScore,\n  status: finalStatus,\n  analysis_date: new Date().toISOString(),\n  text_analysis: textResult.text_analysis,\n  visual_analysis: visualAnalysis,\n  total_issues: allIssues.length,\n  high_severity_issues: highSeverityCount,\n  medium_severity_issues: mediumSeverityCount,\n  all_issues: allIssues,\n  recommendations: {\n    can_publish: finalStatus === 'approved',\n    action_required: finalStatus === 'rejected' ? 'Chỉnh sửa bắt buộc trước khi đăng' : \n                     finalStatus === 'review_needed' ? 'Nên xem xét và chỉnh sửa' : 'Có thể đăng ngay',\n    priority_fixes: allIssues\n      .filter(i => i.severity === 'high')\n      .map(i => ({\n        issue: i.reason,\n        suggestion: i.suggestion\n      }))\n  }\n};\n\nreturn result;"
+            },
+            "id": "calculate-risk",
+            "name": "Calculate Risk Score & Aggregate",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1050,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "number": [
+                        {
+                            "value1": "={{ $json.ad_risk_score }}",
+                            "operation": "largerEqual",
+                            "value2": 70
+                        }
+                    ]
+                }
+            },
+            "id": "check-risk-level",
+            "name": "Check Risk Level",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                1250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "create",
+                "collection": "creative_check_results",
+                "fields": "={{ JSON.stringify($json) }}"
+            },
+            "id": "save-to-db-high-risk",
+            "name": "Save to Database - High Risk",
+            "type": "n8n-nodes-base.mongoDb",
+            "typeVersion": 1,
+            "position": [
+                1450,
+                200
+            ],
+            "credentials": {
+                "mongoDb": {
+                    "id": "your-mongodb-credential",
+                    "name": "MongoDB account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "create",
+                "collection": "creative_check_results",
+                "fields": "={{ JSON.stringify($json) }}"
+            },
+            "id": "save-to-db-low-risk",
+            "name": "Save to Database - Low Risk",
+            "type": "n8n-nodes-base.mongoDb",
+            "typeVersion": 1,
+            "position": [
+                1450,
+                400
+            ],
+            "credentials": {
+                "mongoDb": {
+                    "id": "your-mongodb-credential",
+                    "name": "MongoDB account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "subject": "⚠️ CẢNH BÁO: Creative có rủi ro cao - {{ $json.creative_id }}",
+                "emailType": "html",
+                "message": "=<h2>Creative Check Alert - High Risk Detected</h2>\n<p><strong>Creative ID:</strong> {{ $json.creative_id }}</p>\n<p><strong>Risk Score:</strong> <span style=\"color: red; font-size: 24px;\">{{ $json.ad_risk_score }}/100</span></p>\n<p><strong>Status:</strong> {{ $json.status }}</p>\n\n<h3>Các vấn đề phát hiện ({{ $json.total_issues }}):</h3>\n<ul>\n{{ $json.all_issues.map(issue => `<li><strong>[${issue.severity.toUpperCase()}]</strong> ${issue.reason}<br/><em>Gợi ý: ${issue.suggestion}</em></li>`).join('') }}\n</ul>\n\n<h3>Hành động cần thiết:</h3>\n<p style=\"background: #ffe6e6; padding: 15px; border-left: 4px solid red;\">\n{{ $json.recommendations.action_required }}\n</p>\n\n<hr/>\n<p><small>Đây là email tự động từ hệ thống AI Creative Checker - Ecomdy</small></p>",
+                "fromEmail": "no-reply@ecomdy.com",
+                "toEmail": "creative-team@ecomdy.com",
+                "options": {}
+            },
+            "id": "send-alert-email",
+            "name": "Send Alert Email - High Risk",
+            "type": "n8n-nodes-base.emailSend",
+            "typeVersion": 2,
+            "position": [
+                1650,
+                200
+            ],
+            "credentials": {
+                "smtp": {
+                    "id": "your-smtp-credential",
+                    "name": "SMTP account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ JSON.stringify($json, null, 2) }}",
+                "options": {
+                    "responseCode": 200
+                }
+            },
+            "id": "response-webhook",
+            "name": "Response - Return Results",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1850,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "Webhook Trigger - Receive Creative": {
+            "main": [
+                [
+                    {
+                        "node": "Extract Input Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Extract Input Data": {
+            "main": [
+                [
+                    {
+                        "node": "AI Analyze Text - OpenAI",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Check Media Type",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Check Media Type": {
+            "main": [
+                [
+                    {
+                        "node": "AI Analyze Image - OpenAI Vision",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "AI Analyze Video - OpenAI",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "AI Analyze Text - OpenAI": {
+            "main": [
+                [
+                    {
+                        "node": "Calculate Risk Score & Aggregate",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "AI Analyze Image - OpenAI Vision": {
+            "main": [
+                [
+                    {
+                        "node": "Calculate Risk Score & Aggregate",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "AI Analyze Video - OpenAI": {
+            "main": [
+                [
+                    {
+                        "node": "Calculate Risk Score & Aggregate",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Calculate Risk Score & Aggregate": {
+            "main": [
+                [
+                    {
+                        "node": "Check Risk Level",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Check Risk Level": {
+            "main": [
+                [
+                    {
+                        "node": "Save to Database - High Risk",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Send Alert Email - High Risk",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Save to Database - Low Risk",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save to Database - High Risk": {
+            "main": [
+                [
+                    {
+                        "node": "Response - Return Results",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save to Database - Low Risk": {
+            "main": [
+                [
+                    {
+                        "node": "Response - Return Results",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Send Alert Email - High Risk": {
+            "main": [
+                [
+                    {
+                        "node": "Response - Return Results",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": [],
+    "triggerCount": 1,
+    "updatedAt": "2025-10-16T04:10:00.000Z",
+    "versionId": "1"
+}
