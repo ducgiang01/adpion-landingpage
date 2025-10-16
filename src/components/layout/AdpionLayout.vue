@@ -22,6 +22,15 @@
             class="hidden sm:inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200">
             Wallet: ${{ walletBalance.toLocaleString() }}
           </span>
+          
+          <!-- User Info -->
+          <div v-if="user" class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-gray-50 text-gray-700 border border-gray-200">
+            <div class="w-6 h-6 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-xs font-bold">{{ user.username.charAt(0).toUpperCase() }}</span>
+            </div>
+            <span class="text-sm font-medium">{{ user.username }}</span>
+            <span v-if="isAdmin" class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Admin</span>
+          </div>
           <button
             class="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900 transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -46,11 +55,11 @@
               class="flex items-center space-x-3 pl-4 border-l border-gray-200 hover:bg-gray-50 rounded-lg p-2 transition-colors duration-200">
               <div
                 class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-md">
-                <span class="text-white font-medium text-sm">P</span>
+                <span class="text-white font-medium text-sm">{{ user?.username?.charAt(0).toUpperCase() || 'U' }}</span>
               </div>
               <div class="text-sm text-left">
-                <div class="font-semibold text-gray-900">HỘ KINH DOANH PHẠM ĐỨC AN 89</div>
-                <div class="text-gray-500 text-xs">giangds2001@gmail.com</div>
+                <div class="font-semibold text-gray-900">{{ user?.username || 'User' }}</div>
+                <div class="text-gray-500 text-xs">{{ user?.email || 'user@example.com' }}</div>
               </div>
               <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
                 :class="userDropdownOpen ? 'rotate-180' : ''" fill="currentColor" viewBox="0 0 20 20">
@@ -124,7 +133,7 @@
 
               <div class="border-t border-gray-200 my-2"></div>
 
-              <button @click="handleSignOut"
+              <button @click="handleLogout"
                 class="w-full flex items-center px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200">
                 <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3">
                   <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
@@ -510,10 +519,12 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useWallet } from '@/composables/useWallet'
+import { useAuth } from '@/composables/useAuth'
 
 const route = useRoute()
+const router = useRouter()
 
 const applicationAdsOpen = ref(false)
 const accountManagementOpen = ref(false)
@@ -528,6 +539,9 @@ const verifyModalOpen = ref(false)
 const wallet = useWallet()
 const walletBalance = ref(wallet.getBalance())
 
+// Auth
+const { user, isAdmin, logout } = useAuth()
+
 const update = () => { walletBalance.value = wallet.getBalance() }
 
 const toggleApplicationAds = () => { applicationAdsOpen.value = !applicationAdsOpen.value }
@@ -540,7 +554,11 @@ const openChangePasswordModal = () => { closeUserDropdown(); changePasswordModal
 const openLanguageModal = () => { closeUserDropdown(); languageModalOpen.value = true }
 const openVerifyModal = () => { closeUserDropdown(); verifyModalOpen.value = true }
 
-const handleSignOut = () => { closeUserDropdown(); console.log('Signing out...') }
+const handleLogout = () => { 
+  closeUserDropdown()
+  logout()
+  router.push('/login')
+}
 
 // Close dropdown when clicking outside
 const handleClickOutside = (event: Event) => {
