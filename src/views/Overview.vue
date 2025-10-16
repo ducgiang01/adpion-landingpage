@@ -342,111 +342,160 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import AdpionLayout from '@/components/layout/AdpionLayout.vue'
+import { useDashboardApi } from '@/composables/useApi'
 
 // Date picker
 const selectedDate = ref(new Date().toISOString().split('T')[0])
 
+// API composable
+const { getStats, getAccountStatus, getRecentActivities, getChartData, loading, error } = useDashboardApi()
+
 // Statistics data
 const statistics = ref({
-  totalAccounts: 97,
-  activeAccounts: 89,
-  newAccountsThisMonth: 12,
-  totalBalance: 2847.50,
-  balanceIncrease: 1250.00,
-  totalRequests: 1247,
-  requestsThisWeek: 23
+  totalAccounts: 0,
+  activeAccounts: 0,
+  newAccountsThisMonth: 0,
+  totalBalance: 0,
+  balanceIncrease: 0,
+  totalRequests: 0,
+  requestsThisWeek: 0
 })
 
 // Chart data
 const chartData = ref({
-  balanceTrend: [
-    { label: 'Mon', value: 2400 },
-    { label: 'Tue', value: 2800 },
-    { label: 'Wed', value: 3200 },
-    { label: 'Thu', value: 2900 },
-    { label: 'Fri', value: 3500 },
-    { label: 'Sat', value: 3100 },
-    { label: 'Sun', value: 2847 }
-  ],
-  requestTypes: [
-    { name: 'Top-up', value: 45, color: 'bg-green-500' },
-    { name: 'Deduct', value: 23, color: 'bg-red-500' },
-    { name: 'Reset', value: 12, color: 'bg-yellow-500' },
-    { name: 'Bind', value: 8, color: 'bg-purple-500' }
-  ]
+  balanceTrend: [],
+  requestTypes: []
 })
 
 // Recent activities
-const recentActivities = ref([
-  {
-    id: 1,
-    type: 'top-up',
-    title: 'Account Top-up',
-    description: 'Top-up request processed successfully',
-    amount: '+$1,000.00',
-    accountId: '800624365979550',
-    time: '2 hours ago'
-  },
-  {
-    id: 2,
-    type: 'deduct',
-    title: 'Account Deduction',
-    description: 'Deduction request processed',
-    amount: '-$500.00',
-    accountId: '1157513326484527',
-    time: '4 hours ago'
-  },
-  {
-    id: 3,
-    type: 'bind',
-    title: 'BM Binding',
-    description: 'Business Manager binding completed',
-    amount: 'N/A',
-    accountId: '833346622688890',
-    time: '6 hours ago'
-  },
-  {
-    id: 4,
-    type: 'reset',
-    title: 'Account Reset',
-    description: 'Account reset to initial state',
-    amount: 'N/A',
-    accountId: '645709148613088',
-    time: '1 day ago'
-  }
-])
+const recentActivities = ref([])
 
 // Account status overview
-const accountStatus = ref([
-  {
-    id: 1,
-    accountId: '800624365979550',
-    accountName: 'SHOTOTA HOMEO',
-    status: 'active',
-    balance: '182.58'
-  },
-  {
-    id: 2,
-    accountId: '1157513326484527',
-    accountName: 'achievecollect.shop',
-    status: 'active',
-    balance: '0.01'
-  },
-  {
-    id: 3,
-    accountId: '833346622688890',
-    accountName: 'Buyeasybd.shop',
-    status: 'pending',
-    balance: '0.27'
-  },
-  {
-    id: 4,
-    accountId: '645709148613088',
-    accountName: 'Ads.Towfiq',
-    status: 'active',
-    balance: '12.60'
+const accountStatus = ref([])
+
+// Load dashboard data
+const loadDashboardData = async () => {
+  try {
+    // Load all data in parallel
+    const [statsData, accountsData, activitiesData, chartsData] = await Promise.all([
+      getStats(),
+      getAccountStatus(),
+      getRecentActivities(),
+      getChartData()
+    ])
+
+    // Update reactive data
+    statistics.value = statsData
+    accountStatus.value = accountsData
+    recentActivities.value = activitiesData
+    chartData.value = chartsData
+  } catch (err) {
+    console.error('Error loading dashboard data:', err)
+    // Fallback to static data if API fails
+    statistics.value = {
+      totalAccounts: 97,
+      activeAccounts: 89,
+      newAccountsThisMonth: 12,
+      totalBalance: 2847.50,
+      balanceIncrease: 1250.00,
+      totalRequests: 1247,
+      requestsThisWeek: 23
+    }
+    
+    chartData.value = {
+      balanceTrend: [
+        { label: 'Mon', value: 2400 },
+        { label: 'Tue', value: 2800 },
+        { label: 'Wed', value: 3200 },
+        { label: 'Thu', value: 2900 },
+        { label: 'Fri', value: 3500 },
+        { label: 'Sat', value: 3100 },
+        { label: 'Sun', value: 2847 }
+      ],
+      requestTypes: [
+        { name: 'Top-up', value: 45, color: 'bg-green-500' },
+        { name: 'Deduct', value: 23, color: 'bg-red-500' },
+        { name: 'Reset', value: 12, color: 'bg-yellow-500' },
+        { name: 'Bind', value: 8, color: 'bg-purple-500' }
+      ]
+    }
+    
+    recentActivities.value = [
+      {
+        id: 1,
+        type: 'top-up',
+        title: 'Account Top-up',
+        description: 'Top-up request processed successfully',
+        amount: '+$1,000.00',
+        accountId: '800624365979550',
+        time: '2 hours ago'
+      },
+      {
+        id: 2,
+        type: 'deduct',
+        title: 'Account Deduction',
+        description: 'Deduction request processed',
+        amount: '-$500.00',
+        accountId: '1157513326484527',
+        time: '4 hours ago'
+      },
+      {
+        id: 3,
+        type: 'bind',
+        title: 'BM Binding',
+        description: 'Business Manager binding completed',
+        amount: 'N/A',
+        accountId: '833346622688890',
+        time: '6 hours ago'
+      },
+      {
+        id: 4,
+        type: 'reset',
+        title: 'Account Reset',
+        description: 'Account reset to initial state',
+        amount: 'N/A',
+        accountId: '645709148613088',
+        time: '1 day ago'
+      }
+    ]
+    
+    accountStatus.value = [
+      {
+        id: 1,
+        accountId: '800624365979550',
+        accountName: 'SHOTOTA HOMEO',
+        status: 'active',
+        balance: '182.58'
+      },
+      {
+        id: 2,
+        accountId: '1157513326484527',
+        accountName: 'achievecollect.shop',
+        status: 'active',
+        balance: '0.01'
+      },
+      {
+        id: 3,
+        accountId: '833346622688890',
+        accountName: 'Buyeasybd.shop',
+        status: 'pending',
+        balance: '0.27'
+      },
+      {
+        id: 4,
+        accountId: '645709148613088',
+        accountName: 'Ads.Towfiq',
+        status: 'active',
+        balance: '12.60'
+      }
+    ]
   }
-])
+}
+
+// Load data on component mount
+onMounted(() => {
+  loadDashboardData()
+})
 </script>

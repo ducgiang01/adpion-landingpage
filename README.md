@@ -1,213 +1,251 @@
-# Adpion Dashboard - Vue.js Tailwind CSS Admin Dashboard
+# Adpion Dashboard
 
-Adpion Dashboard is a modern, comprehensive admin dashboard template **built on Vue.js** and **Tailwind CSS**. This **powerful combination** provides developers with an extensive library of essential components, elements, and pages to launch a comprehensive and data-centric back-end, dashboard, or admin panel solution for advertising account management and financial tracking.
-
-![Adpion Dashboard Preview]
-
-With Adpion Dashboard, you can leverage **Vue.js 3** features such as declarative rendering, component-based architecture, Vue Router for routing, and modern state management. It also utilizes the power of Tailwind CSS for rapid UI development with its low-level utility classes and responsive design capabilities.
-
-## Overview
-
-Adpion Dashboard provides essential UI components and layouts for building feature-rich, data-driven admin dashboards and control panels for advertising account management. It's built on:
-
-- Vue 3.x (Vite)
-- Tailwind CSS 4.x
-- TypeScript
+A modern dashboard application for managing Facebook advertising accounts with real-time data visualization and account management features.
 
 ## Features
 
-**🎯 Advertising Account Management:**
-- Comprehensive dashboard for managing advertising accounts across multiple platforms
-- Account application and opening record tracking
-- Real-time consumption metrics and analytics
+- 📊 **Dashboard Overview**: Real-time statistics and analytics
+- 💰 **Account Management**: Create, update, and manage Facebook accounts
+- 📈 **Data Visualization**: Interactive charts and graphs
+- 🔄 **Real-time Updates**: Live data from MongoDB database
+- 🎨 **Modern UI**: Beautiful, responsive design with Tailwind CSS
+- ⚡ **Fast Performance**: Built with Vue 3 and Vite
 
-**💰 Financial Management:**
-- Wallet management with top-up functionality
-- Multiple payment method support (Payoneer, WeChat Pay, Alipay, etc.)
-- Transaction history and balance tracking
+## Tech Stack
 
-**📊 Analytics & Reporting:**
-- Consumption overview and trends
-- Account quality metrics
-- Media details and performance tracking
+### Frontend
+- **Vue 3** - Progressive JavaScript framework
+- **TypeScript** - Type-safe JavaScript
+- **Vite** - Fast build tool
+- **Tailwind CSS** - Utility-first CSS framework
+- **Vue Router** - Official router for Vue.js
 
-**🔧 Platform Support:**
-- Facebook, Google, TikTok, Microsoft, Snapchat
-- Multi-platform account management
-- Request and quota management
+### Backend
+- **Node.js** - JavaScript runtime
+- **Express.js** - Web application framework
+- **MongoDB** - NoSQL database
+- **Mongoose** - MongoDB object modeling
+- **TypeScript** - Type-safe JavaScript
+
+## Prerequisites
+
+Before running this application, make sure you have the following installed:
+
+- **Node.js** (v18 or higher)
+- **MongoDB** (v5.0 or higher)
+- **npm** or **yarn**
 
 ## Installation
 
-### Prerequisites
+### 1. Clone the repository
 
-To get started with TailAdmin, ensure you have the following prerequisites installed and set up:
+```bash
+git clone https://github.com/ducgiang01/adpion-dashboard.git
+cd adpion-dashboard
+```
 
-- Node.js 18.x or later (recommended to use Node.js 20.x or later)
-- Recommended IDE Setup: [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### 2. Install frontend dependencies
 
-#### Type Support for `.vue` Imports in TS
+```bash
+npm install
+```
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+### 3. Install backend dependencies
 
-### Getting Started
+```bash
+cd backend
+npm install
+cd ..
+```
 
-1. Clone or download this project
+### 4. Setup MongoDB
 
-> Windows Users: place the repository near the root of your drive if you face issues while cloning.
+Make sure MongoDB is running on your system:
 
-1. Install dependencies:
+```bash
+# On macOS with Homebrew
+brew services start mongodb-community
 
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
+# On Ubuntu/Debian
+sudo systemctl start mongod
 
-2. Start the development server:
+# On Windows
+net start MongoDB
+```
 
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
+### 5. Configure environment variables
 
-3. Production build:
-   ```bash
-   npm run build
-   # or
-   yarn build
-   ```
+Create a `.env` file in the `backend` directory:
 
-## Feature Comparison
+```bash
+cd backend
+touch .env
+```
 
-### Free Version
+Add the following configuration:
 
-- 1 Unique Dashboard
-- 50+ Dashboard UI components
-- Basic Figma design files
-- Community support
+```env
+# Database Configuration
+MONGODB_URI=mongodb://localhost:27017/adpion-dashboard
+PORT=3001
 
-### Pro Version
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_EXPIRES_IN=7d
 
-- 7 Unique Dashboards: Analytics, Ecommerce, Marketing, CRM, Stocks (more coming soon)
-- 500+ dashboard components and UI elements
-- Complete Figma design file
-- Email support
+# CORS Configuration
+FRONTEND_URL=http://localhost:5173
+```
 
-To learn more about pro version features and pricing, visit our [pricing page](https://tailadmin.com/pricing).
+## Running the Application
 
-## Components
+### 1. Start the backend server
 
-TailAdmin is a pre-designed starting point for building a web-based dashboard using Vue.js and Tailwind CSS. The template includes:
+```bash
+cd backend
+npm run dev
+```
 
-- Sophisticated and accessible sidebar
-- Data visualization components
-- Prebuilt profile management and 404 page
-- Tables and Charts(Line and Bar)
-- Authentication forms and input elements
-- Alerts, Dropdowns, Modals, Buttons and more
-- Can't forget Dark Mode 🕶️
+The backend server will start on `http://localhost:3001`
 
-All components are built with Vue and styled using Tailwind CSS for easy customization.
+### 2. Seed the database (optional)
 
-## Features
+In a new terminal, run the seed script to populate the database with sample data:
 
-**💎 High-quality, Premium Modern Design:**
-A thoughtfully designed dashboard template with a deep focus on UX/UI, already trusted and utilized by over 10K+ web apps worldwide.
+```bash
+cd backend
+npm run seed
+```
 
-**✨ Vue 3:**
-Get enhanced performance with the latest Vue version.
+### 3. Start the frontend development server
 
-**⚡ Vite Build System:**
-Enjoy quick development with Vite, ensuring fast code compilation.
+```bash
+npm run dev
+```
 
-**🔀 Vue Router:**
-Manage app navigation with ease using Vue Router for seamless transitions.
+The frontend will start on `http://localhost:5173`
 
-**💡 Reactive Utilities:**
-Enhance component reactivity with @vueuse/core utilities.
+## API Endpoints
 
-**📊 Charting with ApexCharts:**
-Visualize data with ApexCharts for beautiful analytics.
+### Dashboard
+- `GET /api/dashboard/stats` - Get dashboard statistics
+- `GET /api/dashboard/accounts` - Get account status overview
+- `GET /api/dashboard/activities` - Get recent activities
+- `GET /api/dashboard/charts` - Get chart data
 
-**🗺️ Vector Maps with JSVectorMap:**
-Easily integrate interactive vector maps with JSVectorMap.
+### Accounts
+- `GET /api/accounts` - Get all accounts (with pagination and filters)
+- `GET /api/accounts/:id` - Get account by ID
+- `POST /api/accounts` - Create new account
+- `PUT /api/accounts/:id` - Update account
+- `DELETE /api/accounts/:id` - Delete account
+- `POST /api/accounts/:id/topup` - Top up account balance
+- `POST /api/accounts/:id/deduct` - Deduct from account balance
 
-**🖌️ UI with Tailwind CSS:**
-Frontend UI built on the powerful and versatile Tailwind CSS framework.
+### Health Check
+- `GET /api/health` - API health check
 
-**💫 TypeScript Support:**
-Write safer, maintainable code with TailAdmin Vue's TypeScript Support.
+## Project Structure
 
-**✅ Linting and Formatting:**
-Maintain a clean codebase with built-in linting and formatting.
+```
+adpion-dashboard/
+├── src/                    # Frontend source code
+│   ├── components/         # Vue components
+│   ├── views/             # Page components
+│   ├── composables/       # Vue composables
+│   ├── router/            # Vue Router configuration
+│   └── assets/            # Static assets
+├── backend/               # Backend source code
+│   ├── src/
+│   │   ├── controllers/   # Route controllers
+│   │   ├── models/        # MongoDB models
+│   │   ├── routes/        # API routes
+│   │   ├── config/        # Configuration files
+│   │   └── scripts/       # Utility scripts
+│   └── dist/              # Compiled JavaScript
+└── public/                # Public assets
+```
 
-**🗃️ State Management with Pinia:**
-Handle your app's state with Pinia for clean, organized code.
+## Development
 
-## Update Logs
+### Frontend Development
 
-### Version 2.0.1 - [February 27, 2025]
+```bash
+# Start development server
+npm run dev
 
-#### Update Overview
+# Build for production
+npm run build
 
-- Upgraded to Tailwind CSS v4 for better performance and efficiency.
-- Updated class usage to match the latest syntax and features.
-- Replaced deprecated class and optimized styles.
+# Preview production build
+npm run preview
 
-#### Next Steps
+# Type checking
+npm run type-check
 
-- Run npm install or yarn install to update dependencies.
-- Check for any style changes or compatibility issues.
-- Refer to the Tailwind CSS v4 [Migration Guide](https://tailwindcss.com/docs/upgrade-guide) on this release. if needed.
-- This update keeps the project up to date with the latest Tailwind improvements. 🚀
+# Linting
+npm run lint
 
-### Version 2.0.0 - [February 2025]
+# Format code
+npm run format
+```
 
-Major update with Vue 3 migration and comprehensive redesign.
+### Backend Development
 
-#### Major Improvements
+```bash
+cd backend
 
-- Complete migration to Vue 3 Composition API
-- Updated to Vue Router 4
-- Enhanced user interface with new Vue 3 components
-- Improved performance with Vue 3's virtual DOM
-- Better accessibility and responsive design
+# Start development server
+npm run dev
 
-#### New Features
+# Build for production
+npm run build
 
-- Redesigned dashboards (Ecommerce, Analytics, Marketing, CRM)
-- Collapsible sidebar with Vue 3 integration
-- Enhanced navigation with Vue Router 4
-- Real-time chat functionality
-- Full-featured calendar with drag-and-drop
-- Advanced table components
-- Updated data visualization with ApexCharts
+# Start production server
+npm start
 
-#### Breaking Changes
+# Seed database
+npm run seed
+```
 
-- Requires Vue 3 and Vue Router 4
-- Chart components migrated to ApexCharts for Vue 3
-- Modified routing implementation
-- Updated component APIs for Vue 3 compatibility
+## Database Schema
 
-[Read more](https://tailadmin.com/docs/update-logs/vue) on this release.
+### Account Model
+```typescript
+{
+  accountId: string (unique)
+  accountName: string
+  status: 'active' | 'pending' | 'blocked'
+  balance: number
+  createdAt: Date
+  updatedAt: Date
+}
+```
 
-### Version 1.0.2 - [June 19, 2024]
+### Activity Model
+```typescript
+{
+  type: 'top-up' | 'deduct' | 'reset' | 'bind'
+  title: string
+  description: string
+  amount?: string
+  accountId: string
+  createdAt: Date
+}
+```
 
-#### Issues
+## Contributing
 
-- Fix Mobile Menu Hamburger Icon issue.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-### Version 1.0.1 - [Feb 08, 2024]
+## License
 
-#### Enhancements
+This project is licensed under the ISC License.
 
-- Make it functional [Multiselect Dropdown/Form Elements].
-- Delete SelectGroup Components then create a SelectGroup folder and create two files under this
-  folder SelectGroupOne.vue SelectGroupTwo.vue [Select Group/Form Elements & Layout].
-- Update style.css file.
+## Support
 
-### Version 1.0.0 - Initial Release - [Jan 22, 2024]
-
-- Initial release of TailAdmin Vue.
+If you have any questions or need help, please open an issue on GitHub or contact the development team.
