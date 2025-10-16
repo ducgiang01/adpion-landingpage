@@ -410,7 +410,18 @@ const loadAccounts = async () => {
 }
 
 // Handle form submission
-const handleSubmitApplication = async (formData: any) => {
+const handleSubmitApplication = async (formData: {
+  applicationType: string
+  operationType?: string
+  amount?: string
+  currency?: string
+  name?: string
+  change?: string
+  bmBinding?: string
+  bmUnbind?: string
+  pixelBinding?: string
+  pixelUnbinding?: string
+}) => {
   try {
     const account = selectedAccount.value
     if (!account) return
