@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IAccount extends Document {
+  userId: string;
   accountId: string;
   accountName: string;
   status: 'active' | 'pending' | 'blocked';
@@ -10,10 +11,14 @@ export interface IAccount extends Document {
 }
 
 const AccountSchema: Schema = new Schema({
+  userId: {
+    type: String,
+    required: true,
+    trim: true
+  },
   accountId: {
     type: String,
     required: true,
-    unique: true,
     trim: true
   },
   accountName: {

@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IActivity extends Document {
+  userId: string;
   type: 'top-up' | 'deduct' | 'reset' | 'bind';
   title: string;
   description: string;
@@ -10,6 +11,11 @@ export interface IActivity extends Document {
 }
 
 const ActivitySchema: Schema = new Schema({
+  userId: {
+    type: String,
+    required: true,
+    trim: true
+  },
   type: {
     type: String,
     enum: ['top-up', 'deduct', 'reset', 'bind'],

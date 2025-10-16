@@ -2,11 +2,16 @@ import { Request, Response } from 'express';
 import Account, { IAccount } from '../models/Account';
 import Activity from '../models/Activity';
 
-export const getAllAccounts = async (req: Request, res: Response) => {
+interface AuthRequest extends Request {
+  userId?: string;
+  user?: any;
+}
+
+export const getAllAccounts = async (req: AuthRequest, res: Response) => {
   try {
     const { page = 1, limit = 10, status, search, accountId, balanceRange } = req.query;
     
-    const query: any = {};
+    const query: any = { userId: req.userId };
     
     if (status && status !== 'all') {
       query.status = status;

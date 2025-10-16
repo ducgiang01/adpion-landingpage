@@ -267,7 +267,8 @@
               </select>
               <div class="ml-4 flex items-center space-x-2">
                 <span class="text-sm text-gray-700">跳至</span>
-                <input type="number" :value="pagination.current" @change="changePage(Number(($event.target as HTMLInputElement).value))"
+                <input type="number" :value="pagination.current"
+                  @change="changePage(Number(($event.target as HTMLInputElement).value))"
                   class="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm" min="1" :max="pagination.pages">
                 <span class="text-sm text-gray-700">页</span>
               </div>
@@ -279,7 +280,8 @@
 
     <!-- Submit Application Modal -->
     <SubmitApplicationModal v-if="showSubmitModal" :initialApplicationType="currentAction"
-      @close="showSubmitModal = false" @submit="(data: any) => handleSubmitApplication({ amount: Number(data.amount) })" />
+      @close="showSubmitModal = false"
+      @submit="handleSubmitApplication" />
   </AdpionLayout>
 </template>
 
@@ -290,7 +292,7 @@ import SubmitApplicationModal from '@/components/forms/SubmitApplicationModal.vu
 import { useAccountApi } from '@/composables/useApi'
 
 // API composable
-const { getAllAccounts, topUpAccount, deductAccount } = useAccountApi()
+const { getAllAccounts, topUpAccount, deductAccount, updateAccount } = useAccountApi()
 
 // Modal states
 const showSubmitModal = ref(false)
@@ -409,34 +411,38 @@ const loadAccounts = async () => {
 }
 
 // Handle form submission
-const handleSubmitApplication = async (formData: { amount: number }) => {
+const handleSubmitApplication = async (formData: any) => {
   try {
     const account = selectedAccount.value
     if (!account) return
-    
+
     let result
 
-    switch (currentAction.value) {
-      case 'top-up':
-        result = await topUpAccount(account.accountId, formData.amount)
-        break
-      case 'deduct':
-        result = await deductAccount(account.accountId, formData.amount)
-        break
-      case 'reset':
-        // Handle reset logic
-        console.log('Reset account:', account.accountId)
-        break
-      case 'bind':
-        // Handle bind logic
-        console.log('Bind account:', account.accountId)
-        break
+    // Handle different application types
+    if (formData.applicationType === 'limit-change') {
+      const amount = Number(formData.amount)
+      
+      switch (formData.operationType) {
+        case 'top-up':
+          result = await topUpAccount(account.accountId, amount)
+          break
+        case 'deduct':
+          result = await deductAccount(account.accountId, amount)
+          break
+        case 'reset':
+          // Handle reset logic - set balance to 0
+          result = await updateAccount(account.accountId, { balance: 0 })
+          break
+      }
+    } else {
+      // Handle other application types (name-change, bm-binding, etc.)
+      console.log('Other application type:', formData.applicationType, formData)
     }
 
     // Reload accounts to get updated data
     await loadAccounts()
     showSubmitModal.value = false
-    
+
     // Show success message
     console.log('Action completed successfully:', result)
   } catch (err) {

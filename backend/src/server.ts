@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import connectDB from './config/database';
 import dashboardRoutes from './routes/dashboard';
 import accountRoutes from './routes/accounts';
+import authRoutes from './routes/auth';
+import walletRoutes from './routes/wallet';
 
 // Load environment variables
 dotenv.config();
@@ -24,6 +26,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/wallet', walletRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/accounts', accountRoutes);
 
