@@ -25,14 +25,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Account Name</label>
-            <input type="text" placeholder="Enter account name..." v-model="filters.search"
-              @input="handleSearch"
+            <input type="text" placeholder="Enter account name..." v-model="filters.search" @input="handleSearch"
               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Account ID</label>
-            <input type="text" placeholder="Enter account ID..." v-model="filters.accountId"
-              @input="handleSearch"
+            <input type="text" placeholder="Enter account ID..." v-model="filters.accountId" @input="handleSearch"
               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200" />
           </div>
           <div>
@@ -145,7 +143,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200/50">
-              <tr v-for="account in filteredAccounts" :key="account._id || account.id"
+              <tr v-for="account in filteredAccounts" :key="account._id"
                 class="hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
@@ -234,8 +232,9 @@
           <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
               <p class="text-sm text-gray-700">
-                Showing <span class="font-medium">{{ ((pagination.current - 1) * filters.limit) + 1 }}</span> to <span class="font-medium">{{ Math.min(pagination.current * filters.limit, pagination.total) }}</span> of <span
-                  class="font-medium">{{ pagination.total }}</span> results
+                Showing <span class="font-medium">{{ ((pagination.current - 1) * filters.limit) + 1 }}</span> to <span
+                  class="font-medium">{{ Math.min(pagination.current * filters.limit, pagination.total) }}</span> of
+                <span class="font-medium">{{ pagination.total }}</span> results
               </p>
             </div>
             <div class="flex items-center space-x-2">
@@ -247,8 +246,7 @@
                     clip-rule="evenodd"></path>
                 </svg>
               </button>
-              <button v-for="page in Math.min(5, pagination.pages)" :key="page"
-                @click="changePage(page)"
+              <button v-for="page in Math.min(5, pagination.pages)" :key="page" @click="changePage(page)"
                 class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium"
                 :class="page === pagination.current ? 'bg-blue-50 text-blue-600' : 'bg-white text-gray-700 hover:bg-gray-50'">
                 {{ page }}
@@ -261,14 +259,15 @@
                     clip-rule="evenodd"></path>
                 </svg>
               </button>
-              <select @change="changePageSize(Number($event.target.value))" class="ml-4 px-3 py-2 border border-gray-300 rounded-md text-sm">
+              <select @change="changePageSize(Number(($event.target as HTMLSelectElement).value))"
+                class="ml-4 px-3 py-2 border border-gray-300 rounded-md text-sm">
                 <option :value="10" :selected="filters.limit === 10">10条/页</option>
                 <option :value="20" :selected="filters.limit === 20">20条/页</option>
                 <option :value="50" :selected="filters.limit === 50">50条/页</option>
               </select>
               <div class="ml-4 flex items-center space-x-2">
                 <span class="text-sm text-gray-700">跳至</span>
-                <input type="number" :value="pagination.current" @change="changePage(Number($event.target.value))" 
+                <input type="number" :value="pagination.current" @change="changePage(Number(($event.target as HTMLInputElement).value))"
                   class="w-16 px-2 py-1 border border-gray-300 rounded-md text-sm" min="1" :max="pagination.pages">
                 <span class="text-sm text-gray-700">页</span>
               </div>
@@ -280,7 +279,7 @@
 
     <!-- Submit Application Modal -->
     <SubmitApplicationModal v-if="showSubmitModal" :initialApplicationType="currentAction"
-      @close="showSubmitModal = false" @submit="handleSubmitApplication" />
+      @close="showSubmitModal = false" @submit="(data: any) => handleSubmitApplication({ amount: Number(data.amount) })" />
   </AdpionLayout>
 </template>
 
@@ -291,16 +290,36 @@ import SubmitApplicationModal from '@/components/forms/SubmitApplicationModal.vu
 import { useAccountApi } from '@/composables/useApi'
 
 // API composable
-const { getAllAccounts, topUpAccount, deductAccount, loading, error } = useAccountApi()
+const { getAllAccounts, topUpAccount, deductAccount } = useAccountApi()
 
 // Modal states
 const showSubmitModal = ref(false)
 const currentAction = ref('')
-const selectedAccount = ref(null)
+const selectedAccount = ref<Account | null>(null)
+
+// Define types
+interface Account {
+  _id: string
+  accountId: string
+  accountName: string
+  balance: number
+  status: 'active' | 'pending' | 'blocked'
+  createdAt: Date
+  businessLicense?: string
+  requestId?: string
+  dateCreated?: string
+  teamId?: string
+}
+
+interface Pagination {
+  current: number
+  pages: number
+  total: number
+}
 
 // Data states
-const accounts = ref([])
-const pagination = ref({
+const accounts = ref<Account[]>([])
+const pagination = ref<Pagination>({
   current: 1,
   pages: 1,
   total: 0
@@ -320,7 +339,7 @@ const filters = ref({
 const filteredAccounts = computed(() => {
   return accounts.value.map(account => ({
     ...account,
-    businessLicense: getBusinessLicense(account.accountName),
+    businessLicense: getBusinessLicense(),
     requestId: generateRequestId(account.accountId),
     dateCreated: formatDate(account.createdAt),
     teamId: '0'
@@ -330,7 +349,7 @@ const filteredAccounts = computed(() => {
 // Load accounts from API
 const loadAccounts = async () => {
   try {
-    const response = await getAllAccounts(filters.value)
+    const response = await getAllAccounts(filters.value) as { accounts: Account[], pagination: Pagination }
     accounts.value = response.accounts || []
     pagination.value = response.pagination || { current: 1, pages: 1, total: 0 }
   } catch (err) {
@@ -342,7 +361,7 @@ const loadAccounts = async () => {
         accountId: '1157513326484527',
         accountName: 'achievecollect.shop',
         balance: 0.01,
-        status: 'active',
+        status: 'active' as const,
         createdAt: new Date('2025-10-10T03:12:05Z')
       },
       {
@@ -350,7 +369,7 @@ const loadAccounts = async () => {
         accountId: '833346622688890',
         accountName: 'Buyeasybd.shop',
         balance: 0.27,
-        status: 'pending',
+        status: 'pending' as const,
         createdAt: new Date('2025-10-09T15:30:22Z')
       },
       {
@@ -358,7 +377,7 @@ const loadAccounts = async () => {
         accountId: '645709148613088',
         accountName: 'Ads.Towfiq',
         balance: 12.60,
-        status: 'active',
+        status: 'active' as const,
         createdAt: new Date('2025-10-08T09:45:18Z')
       },
       {
@@ -366,7 +385,7 @@ const loadAccounts = async () => {
         accountId: '800624365979550',
         accountName: 'SHOTOTA HOMEO',
         balance: 182.58,
-        status: 'active',
+        status: 'active' as const,
         createdAt: new Date('2025-10-06T11:15:42Z')
       },
       {
@@ -374,7 +393,7 @@ const loadAccounts = async () => {
         accountId: '123456789012345',
         accountName: 'Test Account 1',
         balance: 500.00,
-        status: 'active',
+        status: 'active' as const,
         createdAt: new Date('2025-10-05T16:30:15Z')
       },
       {
@@ -382,7 +401,7 @@ const loadAccounts = async () => {
         accountId: '987654321098765',
         accountName: 'Test Account 2',
         balance: 0.00,
-        status: 'blocked',
+        status: 'blocked' as const,
         createdAt: new Date('2025-10-04T08:45:27Z')
       }
     ]
@@ -390,9 +409,11 @@ const loadAccounts = async () => {
 }
 
 // Handle form submission
-const handleSubmitApplication = async (formData: any) => {
+const handleSubmitApplication = async (formData: { amount: number }) => {
   try {
     const account = selectedAccount.value
+    if (!account) return
+    
     let result
 
     switch (currentAction.value) {
@@ -415,7 +436,7 @@ const handleSubmitApplication = async (formData: any) => {
     // Reload accounts to get updated data
     await loadAccounts()
     showSubmitModal.value = false
-
+    
     // Show success message
     console.log('Action completed successfully:', result)
   } catch (err) {
@@ -424,7 +445,7 @@ const handleSubmitApplication = async (formData: any) => {
 }
 
 // Handle action buttons - open SubmitApplicationModal with specific Application Type
-const openActionModal = (action: string, account: any) => {
+const openActionModal = (action: string, account: Account) => {
   selectedAccount.value = account
 
   // Map actions to application types
@@ -441,7 +462,7 @@ const openActionModal = (action: string, account: any) => {
 }
 
 // Helper functions
-const getBusinessLicense = (accountName: string): string => {
+const getBusinessLicense = (): string => {
   const licenses = [
     '济南汲润网络科技有限公司',
     '济南鼎泰祥信息科技有限公司',

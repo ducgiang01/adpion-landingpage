@@ -364,16 +364,33 @@ const statistics = ref({
 })
 
 // Chart data
-const chartData = ref({
+const chartData = ref<{
+  balanceTrend: Array<{ label: string; value: number }>
+  requestTypes: Array<{ name: string; value: number; color: string }>
+}>({
   balanceTrend: [],
   requestTypes: []
 })
 
 // Recent activities
-const recentActivities = ref([])
+const recentActivities = ref<Array<{
+  id: number
+  type: string
+  title: string
+  description: string
+  amount: string
+  accountId: string
+  time: string
+}>>([])
 
 // Account status overview
-const accountStatus = ref([])
+const accountStatus = ref<Array<{
+  id: number
+  accountId: string
+  accountName: string
+  status: string
+  balance: string
+}>>([])
 
 // Load dashboard data
 const loadDashboardData = async () => {
@@ -387,10 +404,10 @@ const loadDashboardData = async () => {
     ])
 
     // Update reactive data
-    statistics.value = statsData
-    accountStatus.value = accountsData
-    recentActivities.value = activitiesData
-    chartData.value = chartsData
+    statistics.value = statsData as typeof statistics.value
+    accountStatus.value = accountsData as typeof accountStatus.value
+    recentActivities.value = activitiesData as typeof recentActivities.value
+    chartData.value = chartsData as typeof chartData.value
   } catch (err) {
     console.error('Error loading dashboard data:', err)
     // Fallback to static data if API fails
