@@ -280,8 +280,7 @@
 
     <!-- Submit Application Modal -->
     <SubmitApplicationModal v-if="showSubmitModal" :initialApplicationType="currentAction"
-      @close="showSubmitModal = false"
-      @submit="handleSubmitApplication" />
+      @close="showSubmitModal = false" @submit="handleSubmitApplication" />
   </AdpionLayout>
 </template>
 
@@ -421,7 +420,7 @@ const handleSubmitApplication = async (formData: any) => {
     // Handle different application types
     if (formData.applicationType === 'limit-change') {
       const amount = Number(formData.amount)
-      
+
       switch (formData.operationType) {
         case 'top-up':
           result = await topUpAccount(account.accountId, amount)
