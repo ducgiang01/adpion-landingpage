@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { trackContactFormSubmit } from "../utils/facebookPixel";
+import toast from "react-hot-toast";
 
 type ContactFormFields = {
     name: string;
     email: string;
-    company: string;
+    whatsapp: string;
     message: string;
 };
 
@@ -14,9 +15,10 @@ export default function ContactForm() {
     const [fields, setFields] = useState<ContactFormFields>({
         name: "",
         email: "",
-        company: "",
+        whatsapp: "",
         message: "",
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -24,28 +26,52 @@ export default function ContactForm() {
         setFields((prev) => ({ ...prev, [name]: value }));
     };
 
-    const onSubmit = (e: React.FormEvent) => {
+    const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsSubmitting(true);
 
-        // Track Facebook Pixel event
-        trackContactFormSubmit({
-            name: fields.name,
-            email: fields.email,
-            company: fields.company
-        });
+        try {
+            // Track Facebook Pixel event
+            trackContactFormSubmit({
+                name: fields.name,
+                email: fields.email,
+                company: fields.whatsapp
+            });
 
-        const to = "support@adpion.com";
-        const subject = encodeURIComponent(`Contact from ${fields.name || 'Website Visitor'}`);
-        const body = encodeURIComponent(
-            `Name: ${fields.name}\nEmail: ${fields.email}\nCompany: ${fields.company}\n\nMessage:\n${fields.message}`
-        );
-        window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
-        setShowConfirm(true);
+            // Send email using FormSubmit service
+            const formData = new FormData();
+            formData.append('name', fields.name);
+            formData.append('email', fields.email);
+            formData.append('whatsapp', fields.whatsapp || 'N/A');
+            formData.append('message', fields.message);
+            formData.append('_to', 'support@adpion.com');
+            formData.append('_subject', `Contact Form Submission from ${fields.name}`);
+            formData.append('_template', 'box');
+            formData.append('_captcha', 'false');
+
+            const response = await fetch('https://formsubmit.co/ajax/giangds2001@gmail.com', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                toast.success('Message sent successfully!');
+                setShowConfirm(true);
+                setFields({ name: "", email: "", whatsapp: "", message: "" });
+            } else {
+                throw new Error('Failed to send message');
+            }
+        } catch (error) {
+            console.error('Error sending form:', error);
+            toast.error('Failed to send message. Please try again or contact us directly.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleCloseConfirm = () => {
         setShowConfirm(false);
-        setFields({ name: "", email: "", company: "", message: "" });
+        setFields({ name: "", email: "", whatsapp: "", message: "" });
     };
 
     return (
@@ -59,7 +85,7 @@ export default function ContactForm() {
                     onChange={onChange}
                     type="text"
                     placeholder="Your name"
-                    className="w-full rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full rounded-xl bg-white/10 backdrop-blur-sm border border-gray-600/50 !text-white placeholder-gray-400 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
                     required
                 />
             </div>
@@ -72,20 +98,20 @@ export default function ContactForm() {
                     onChange={onChange}
                     type="email"
                     placeholder="you@example.com"
-                    className="w-full rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                    className="w-full rounded-xl bg-white/10 backdrop-blur-sm border border-gray-600/50 !text-white placeholder-gray-400 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:border-secondary-500 transition-all"
                     required
                 />
             </div>
             <div className="md:col-span-2">
-                <label htmlFor="company" className="block text-sm font-medium text-gray-300 mb-2">Company</label>
+                <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-300 mb-2">WhatsApp / PhoneNumber</label>
                 <input
-                    id="company"
-                    name="company"
-                    value={fields.company}
+                    id="whatsapp"
+                    name="whatsapp"
+                    value={fields.whatsapp}
                     onChange={onChange}
                     type="text"
-                    placeholder="Company or project"
-                    className="w-full rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    placeholder="Your WhatsApp number"
+                    className="w-full rounded-xl bg-white/10 backdrop-blur-sm border border-gray-600/50 !text-white placeholder-gray-400 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
                 />
             </div>
             <div className="md:col-span-2">
@@ -97,16 +123,17 @@ export default function ContactForm() {
                     onChange={onChange}
                     rows={5}
                     placeholder="Tell us about your goals..."
-                    className="w-full rounded-xl bg-gray-800 border border-gray-700 text-white placeholder-gray-500 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent-500"
+                    className="w-full rounded-xl bg-white/10 backdrop-blur-sm border border-gray-600/50 !text-white placeholder-gray-400 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all resize-none"
                     required
                 />
             </div>
             <div className="md:col-span-2 flex justify-center">
                 <button
                     type="submit"
-                    className="px-10 py-4 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-xl text-white font-semibold text-lg hover:from-primary-600 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
+                    disabled={isSubmitting}
+                    className="px-10 py-4 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-xl text-white font-semibold text-lg hover:from-primary-600 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
-                    Submit
+                    {isSubmitting ? 'Sending...' : 'Submit'}
                 </button>
             </div>
 
@@ -124,8 +151,7 @@ export default function ContactForm() {
                     <div className="relative z-10 w-full max-w-md mx-auto bg-gray-800 border border-gray-700 rounded-2xl p-6 text-center shadow-2xl">
                         <h3 className="text-2xl font-bold text-white mb-3">Thanks!</h3>
                         <p className="text-gray-300 mb-6">
-                            Your email client should open with your message. If it doesn't, please contact
-                            <span className="text-primary-400"> support@adpion.com</span>.
+                            Your message has been sent successfully. We'll get back to you soon!
                         </p>
                         <button
                             type="button"

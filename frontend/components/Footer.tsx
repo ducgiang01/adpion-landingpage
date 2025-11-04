@@ -63,7 +63,7 @@ export default function Footer() {
               <div className="flex items-center gap-2">
                 <FaEnvelope className="text-primary-400 w-3 h-3 flex-shrink-0" />
                 <a href="mailto:contact@adpion.com" className="text-gray-400 hover:text-primary-400 transition-colors text-xs">
-                  contact@adpion.com
+                  support@adpion.com
                 </a>
               </div>
               <div className="flex items-center gap-2">
