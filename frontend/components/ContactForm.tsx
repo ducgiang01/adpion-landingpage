@@ -49,7 +49,7 @@ export default function ContactForm() {
             formData.append('_template', 'box');
             formData.append('_captcha', 'false');
 
-            const response = await fetch('https://formsubmit.co/ajax/giangds2001@gmail.com', {
+            const response = await fetch('https://formsubmit.co/ajax/support@adpion.com', {
                 method: 'POST',
                 body: formData,
             });
