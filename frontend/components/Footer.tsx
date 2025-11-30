@@ -68,7 +68,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <FaMapMarkerAlt className="text-primary-400 w-3 h-3 flex-shrink-0" />
-                <span className="text-gray-400 text-xs">Ho Chi Minh City, Vietnam</span>
+                <span className="text-gray-400 text-xs">SUITE C, LEVEL 7, WORLD TRUST TOWER, 50 STANLEY STREET, CENTRAL,HONG KONG</span>
               </div>
             </div>
           </div>
@@ -101,7 +101,7 @@ export default function Footer() {
             </div>
             <div className="text-center sm:text-right">
               <p className="text-gray-400 text-xs">
-                &copy; 2025 Adpion. All rights reserved.
+                &copy; 2025 ADPION CO. LTD. All rights reserved.
               </p>
               <p className="text-gray-500 text-xs mt-1">
                 Premium Meta Advertising Solutions
